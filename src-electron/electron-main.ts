@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut, Tray, Menu, screen } from 'electron';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
@@ -9,20 +9,25 @@ const platform = process.platform || os.platform();
 const currentDir = fileURLToPath(new URL('.', import.meta.url));
 
 let mainWindow: BrowserWindow | undefined;
+let tray: Tray | null = null;
 
 async function createWindow() {
   /**
    * Initial window options
    */
+  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new BrowserWindow({
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 50,
-    height: 180,
+    height: 250,
+    x: screenWidth - 80,
+    y: Math.floor((screenHeight - 200) / 2),
     frame: false, // 移除標題列和框架
     resizable: false, // 不允許調整大小
     alwaysOnTop: true, // 保持在最上層
     show: false, // 預設隱藏
     skipTaskbar: true, // 不顯示在任務列
+    type: 'toolbar', // 隱藏從視窗清單
     useContentSize: true,
     webPreferences: {
       contextIsolation: true,
@@ -42,6 +47,35 @@ async function createWindow() {
   } else {
     await mainWindow.loadFile('index.html');
   }
+
+  // 系統盤圖示
+  if (process.env.DEV) {
+    tray = new Tray(path.resolve(currentDir, '../../src-electron/statics/icon.png'));
+  } else {
+    tray = new Tray(path.resolve(currentDir, 'statics/icon.png'));
+  }
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: '顯示/隱藏 工具列（&F9）',
+      type: 'normal',
+      click: () => {
+        if (mainWindow?.isVisible()) {
+          mainWindow.hide();
+        } else {
+          mainWindow?.show();
+        }
+      },
+    },
+    {
+      label: '結束程式',
+      type: 'normal',
+      click: () => {
+        app.quit();
+      },
+    },
+  ]);
+  tray.setToolTip('SnapIn 螢幕標註工具');
+  tray.setContextMenu(contextMenu);
 
   // 不開啟開發者工具
   mainWindow.webContents.on('devtools-opened', () => {
@@ -87,6 +121,6 @@ app.on('will-quit', () => {
 
 app.on('activate', () => {
   if (mainWindow === undefined) {
-    void createWindow();
+    createWindow().catch(console.error);
   }
 });

@@ -1,5 +1,6 @@
 <template>
   <div class="toolbar">
+    <div class="drag-handle"></div>
     <q-btn
       icon="brush"
       flat
@@ -51,10 +52,16 @@ function closeApp() {
   flex-direction: column;
   height: 100%;
   background-color: #f5f5f5;
-  padding: 10px;
+  padding: 7px;
   gap: 5px;
   -webkit-app-region: drag; /* 允許拖拽整個區域 */
   overflow: hidden; /* 隱藏任何溢出內容 */
+}
+
+.drag-handle {
+  height: 30px;
+  background-color: #e68e30;
+  -webkit-app-region: drag;
 }
 
 .tool-btn {

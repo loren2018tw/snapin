@@ -11,6 +11,8 @@ declare global {
     electronAPI: {
       quitApp: () => Promise<void>;
       hideWindow: () => Promise<void>;
+      send: (channel: string) => void;
+      onClearDrawing: (callback: () => void) => void;
     };
   }
 }

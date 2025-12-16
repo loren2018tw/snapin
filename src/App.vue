@@ -8,41 +8,76 @@
       :color="activeTool === 'brush1' ? 'primary' : 'grey'"
       @click="setTool('brush1')"
       class="tool-btn"
+      title="畫筆"
     />
     <q-btn
-      icon="brush"
+      icon="auto_fix_normal"
       flat
       round
-      :color="activeTool === 'brush2' ? 'primary' : 'grey'"
-      @click="setTool('brush2')"
+      :color="activeTool === 'Trail Pen' ? 'primary' : 'grey'"
+      @click="setTool('Trail Pen')"
       class="tool-btn"
+      title="軌跡筆"
     />
     <q-btn
-      icon="category"
+      icon="rectangle"
       flat
       round
-      :color="activeTool === 'shape' ? 'primary' : 'grey'"
-      @click="setTool('shape')"
+      :color="activeTool === 'Rectangle' ? 'primary' : 'grey'"
+      @click="setTool('Rectangle')"
       class="tool-btn"
+      title="長方形"
     />
-    <q-btn icon="close" flat round color="negative" @click="closeApp" class="close-btn" />
+    <q-btn
+      icon="cleaning_services"
+      flat
+      round
+      color="orange"
+      @click="clearCanvas"
+      class="tool-btn"
+      title="清除畫布"
+    />
+    <q-btn
+      icon="close"
+      flat
+      round
+      color="negative"
+      @click="closeApp"
+      class="close-btn"
+      title="關閉程式"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 
+declare global {
+  interface Window {
+    electronAPI?: {
+      quitApp: () => Promise<void>;
+      hideWindow: () => Promise<void>;
+      send: (channel: string, ...args: unknown[]) => void;
+      onClearDrawing: (callback: () => void) => void;
+    };
+  }
+}
+
 const activeTool = ref('brush1');
 
 function setTool(tool: string) {
   activeTool.value = tool;
-  // TODO: 實現工具切換邏輯
+  window.electronAPI?.send('set-tool', tool);
+}
+
+function clearCanvas() {
+  console.log('clear-canva');
+  window.electronAPI?.send('clear-canvas');
 }
 
 function closeApp() {
-  void (
-    window as Window & { electronAPI?: { hideWindow: () => Promise<void> } }
-  ).electronAPI?.hideWindow();
+  console.log('hide-windows');
+  void window.electronAPI?.hideWindow();
 }
 </script>
 

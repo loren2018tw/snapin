@@ -9,6 +9,7 @@ const platform = process.platform || os.platform();
 const currentDir = fileURLToPath(new URL('.', import.meta.url));
 
 let mainWindow: BrowserWindow | undefined;
+let toolbarWindow: BrowserWindow | undefined;
 let tray: Tray | null = null;
 
 async function createWindow() {
@@ -16,10 +17,43 @@ async function createWindow() {
    * Initial window options
    */
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+
+  // 創建全螢幕繪圖視窗
   mainWindow = new BrowserWindow({
+    width: screenWidth,
+    height: screenHeight,
+    x: 0,
+    y: 0,
+    frame: false,
+    resizable: false,
+    alwaysOnTop: true,
+    show: false,
+    skipTaskbar: true,
+    transparent: true,
+    webPreferences: {
+      contextIsolation: true,
+      preload: path.resolve(
+        currentDir,
+        path.join(
+          process.env.QUASAR_ELECTRON_PRELOAD_FOLDER,
+          'electron-preload' + process.env.QUASAR_ELECTRON_PRELOAD_EXTENSION,
+        ),
+      ),
+    },
+  });
+
+  if (process.env.DEV) {
+    await mainWindow.loadURL(process.env.APP_URL + '/drawing.html');
+  } else {
+    await mainWindow.loadFile('drawing.html');
+  }
+
+  // 創建工具列子視窗
+  toolbarWindow = new BrowserWindow({
+    parent: mainWindow,
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 50,
-    height: 250,
+    height: 280,
     x: screenWidth - 80,
     y: Math.floor((screenHeight - 200) / 2),
     frame: false, // 移除標題列和框架
@@ -43,9 +77,9 @@ async function createWindow() {
   });
 
   if (process.env.DEV) {
-    await mainWindow.loadURL(process.env.APP_URL);
+    await toolbarWindow.loadURL(process.env.APP_URL);
   } else {
-    await mainWindow.loadFile('index.html');
+    await toolbarWindow.loadFile('index.html');
   }
 
   // 系統盤圖示
@@ -61,8 +95,12 @@ async function createWindow() {
       click: () => {
         if (mainWindow?.isVisible()) {
           mainWindow.hide();
+          toolbarWindow?.hide();
         } else {
           mainWindow?.show();
+          mainWindow?.focus();
+          toolbarWindow?.show();
+          toolbarWindow?.focus();
         }
       },
     },
@@ -82,16 +120,38 @@ async function createWindow() {
     mainWindow?.webContents.closeDevTools();
   });
 
+  toolbarWindow.webContents.on('devtools-opened', () => {
+    toolbarWindow?.webContents.closeDevTools();
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = undefined;
+  });
+
+  // 監聽渲染進程的 console.log 訊息
+  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    console.log(`Renderer Console (${sourceId}:${line}): ${message}`);
+  });
+
+  toolbarWindow.on('closed', () => {
+    toolbarWindow = undefined;
+  });
+
+  // 監聽工具列渲染進程的 console.log 訊息
+  toolbarWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    console.log(`Toolbar Renderer Console (${sourceId}:${line}): ${message}`);
   });
 
   // 註冊全域快捷鍵 F9 來顯示/隱藏工具列
   globalShortcut.register('F9', () => {
     if (mainWindow?.isVisible()) {
       mainWindow.hide();
+      toolbarWindow?.hide();
     } else {
       mainWindow?.show();
+      mainWindow?.focus();
+      toolbarWindow?.show();
+      toolbarWindow?.focus();
     }
   });
 }
@@ -103,7 +163,18 @@ ipcMain.handle('quit-app', () => {
 ipcMain.handle('hide-window', () => {
   if (mainWindow) {
     mainWindow.hide();
+    toolbarWindow?.hide();
   }
+});
+
+ipcMain.on('clear-canvas', () => {
+  console.log('clear-canvas received');
+  mainWindow?.webContents.send('clear-drawing');
+});
+
+ipcMain.on('set-tool', (event, tool) => {
+  console.log('set-tool received in main', tool);
+  mainWindow?.webContents.send('set-tool', tool);
 });
 
 void app.whenReady().then(createWindow);

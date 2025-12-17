@@ -38,7 +38,8 @@
       let lastX = 0;
       let lastY = 0;
       let activeTool = 'brush1'; // 預設工具
-      const shapes = []; // 用於儲存所有形狀 (筆跡、長方形等)
+      const shapes = []; // 用於儲存畫筆的形狀資料
+      let tempRectangleShape = null; // 用於儲存目前繪製長方形的暫存資料
       let startX = 0;
       let startY = 0;
 
@@ -52,7 +53,7 @@
 
       function draw(e) {
         if (!isDrawing) return;
-
+        // console.log('drawing...');
         if (activeTool === 'brush1') {
           ctx.strokeStyle = 'red';
           ctx.lineWidth = 5;
@@ -60,7 +61,13 @@
           ctx.moveTo(lastX, lastY);
           ctx.lineTo(e.clientX, e.clientY);
           ctx.stroke();
-          shapes.push({ type: 'brush1', x1: lastX, y1: lastY, x2: e.clientX, y2: e.clientY });
+          shapes.push({
+            type: 'brush1',
+            x1: lastX,
+            y1: lastY,
+            x2: e.clientX,
+            y2: e.clientY,
+          });
         } else if (activeTool === 'Trail Pen') {
           ctx.strokeStyle = 'orange';
           ctx.lineWidth = 5;
@@ -77,9 +84,16 @@
             timestamp: Date.now(),
           });
         } else if (activeTool === 'Rectangle') {
-          redrawCanvas(); // 清除之前的預覽
-          // 繪製當前正在拖曳的長方形預覽
-          drawRectangle(startX, startY, e.clientX, e.clientY);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.stroke();
+
+          tempRectangleShape = {
+            type: 'Rectangle',
+            x1: startX,
+            y1: startY,
+            x2: e.clientX,
+            y2: e.clientY,
+          };
         }
 
         lastX = e.clientX;
@@ -112,6 +126,16 @@
             drawRectangle(shape.x1, shape.y1, shape.x2, shape.y2);
           }
         }
+
+        // 繪製目前正在繪製的長方形
+        if (tempRectangleShape) {
+          drawRectangle(
+            tempRectangleShape.x1,
+            tempRectangleShape.y1,
+            tempRectangleShape.x2,
+            tempRectangleShape.y2,
+          );
+        }
       }
 
       function animateShapes() {
@@ -133,7 +157,8 @@
       window.electronAPI.on('clear-drawing', () => {
         console.log('clear-drawing received in renderer');
         shapes.length = 0; // 清除所有形狀
-        redrawCanvas();
+        // redrawCanvas();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       });
 
       // 監聽來自主進程的 set-tool 訊息
@@ -152,9 +177,6 @@
         lastY = e.clientY;
         startX = e.clientX; // 記錄長方形的起始點
         startY = e.clientY;
-        if (activeTool === 'Rectangle') {
-          // 不需要在這裡繪製初始長方形，因為 mousemove 會處理
-        }
       });
 
       canvas.addEventListener('mousemove', draw);
@@ -162,6 +184,7 @@
       canvas.addEventListener('mouseup', (e) => {
         console.log('mouseup');
         isDrawing = false;
+        tempRectangleShape = null; // 清除暫存的長方形資料
         if (activeTool === 'Rectangle') {
           shapes.push({ type: 'Rectangle', x1: startX, y1: startY, x2: e.clientX, y2: e.clientY });
           redrawCanvas();

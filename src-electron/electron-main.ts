@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
-
 const currentDir = fileURLToPath(new URL('.', import.meta.url));
+// console.log('Current Directory:', currentDir);
 
 let mainWindow: BrowserWindow | undefined;
 let toolbarWindow: BrowserWindow | undefined;
@@ -111,6 +111,8 @@ async function createWindow() {
     await mainWindow.loadFile('drawing.html');
   }
 
+  mainWindow?.webContents.send('update-settings', currentSettings);
+
   // 創建工具列子視窗
   toolbarWindow = new BrowserWindow({
     parent: mainWindow,
@@ -147,9 +149,9 @@ async function createWindow() {
 
   // 系統盤圖示
   if (process.env.DEV) {
-    tray = new Tray(path.resolve(currentDir, '../../src-electron/statics/icon.png'));
+    tray = new Tray(path.resolve(currentDir, '../../public/icon.png'));
   } else {
-    tray = new Tray(path.resolve(currentDir, 'statics/icon.png'));
+    tray = new Tray(path.resolve(currentDir, 'icon.png'));
   }
   const contextMenu = Menu.buildFromTemplate([
     {

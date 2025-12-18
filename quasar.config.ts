@@ -178,23 +178,48 @@ export default defineConfig((/* ctx */) => {
       // specify the debugging port to use for the Electron app when running in development mode
       inspectPort: 5858,
 
-      bundler: 'packager', // 'packager' or 'builder'
+      // bundler: 'packager', // 'packager' or 'builder'
+      bundler: 'builder',
 
       packager: {
-        // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
-        // OS X / Mac App Store
-        // appBundleId: '',
-        // appCategoryType: '',
-        // osxSign: '',
-        // protocol: 'myapp://path',
-        // Windows only
-        // win32metadata: { ... }
+        platform: 'linux,win32', // 指定目標平台
+        arch: 'x64', // 指定架構 (ia32, x64, arm64)
+
+        // 如果要在 Linux 上成功打包 Windows，以下設定很重要
+        icon: 'src-electron/icons/icon.ico', // 必須是 .ico 格式
+        win32metadata: {
+          ProductName: 'SnapIn 螢幕標注程式',
+          InternalName: 'SnapIn App',
+          FileDescription: '螢幕標注程式',
+          CompanyName: 'Loren(loren.tw@gmail.com)',
+        },
       },
-
       builder: {
-        // https://www.electron.build/configuration/configuration
-
-        appId: 'snapin',
+        appId: 'boats.loren.snipin',
+        win: {
+          target: [
+            // {
+            //   target: 'nsis', // 生成安裝檔 (EXE)
+            //   arch: ['x64'], // 強制指定 64 位元
+            // },
+            {
+              target: 'portable', // 也可以同時生成免安裝綠色版
+              arch: ['x64'],
+            },
+          ],
+        },
+        linux: {
+          target: [
+            {
+              target: 'AppImage', // Linux 最通用的格式
+              arch: ['x64'],
+            },
+            // {
+            //   target: 'deb', // Debian/Ubuntu 格式
+            //   arch: ['x64'],
+            // },
+          ],
+        },
       },
     },
 

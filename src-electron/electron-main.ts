@@ -53,7 +53,7 @@ async function createWindow() {
     parent: mainWindow,
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 50,
-    height: 280,
+    height: 330,
     x: screenWidth - 80,
     y: Math.floor((screenHeight - 200) / 2),
     frame: false, // 移除標題列和框架
@@ -175,6 +175,19 @@ ipcMain.on('clear-canvas', () => {
 ipcMain.on('set-tool', (event, tool) => {
   console.log('set-tool received in main', tool);
   mainWindow?.webContents.send('set-tool', tool);
+});
+
+ipcMain.on('toggle-whiteboard', (_event, isWhiteboardMode: boolean) => {
+  console.log('toggle-whiteboard received in main', isWhiteboardMode);
+  if (mainWindow) {
+    if (isWhiteboardMode) {
+      mainWindow.setOpacity(1);
+      mainWindow.setBackgroundColor('#FFFFFF');
+    } else {
+      mainWindow.setOpacity(0.5);
+      mainWindow.setBackgroundColor('#00000000');
+    }
+  }
 });
 
 void app.whenReady().then(createWindow);

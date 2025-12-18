@@ -38,6 +38,15 @@
       title="清除畫布"
     />
     <q-btn
+      icon="layers"
+      flat
+      round
+      :color="isWhiteboardMode ? 'primary' : 'grey'"
+      @click="toggleWhiteboardMode"
+      class="tool-btn"
+      title="白板模式"
+    />
+    <q-btn
       icon="close"
       flat
       round
@@ -57,6 +66,7 @@ declare global {
     electronAPI?: {
       quitApp: () => Promise<void>;
       hideWindow: () => Promise<void>;
+      toggleWhiteboard: (isWhiteboardMode: boolean) => void;
       send: (channel: string, ...args: unknown[]) => void;
       onClearDrawing: (callback: () => void) => void;
     };
@@ -64,6 +74,7 @@ declare global {
 }
 
 const activeTool = ref('brush1');
+const isWhiteboardMode = ref(false);
 
 function setTool(tool: string) {
   activeTool.value = tool;
@@ -73,6 +84,11 @@ function setTool(tool: string) {
 function clearCanvas() {
   console.log('clear-canva');
   window.electronAPI?.send('clear-canvas');
+}
+
+function toggleWhiteboardMode() {
+  isWhiteboardMode.value = !isWhiteboardMode.value;
+  window.electronAPI?.toggleWhiteboard(isWhiteboardMode.value);
 }
 
 function closeApp() {

@@ -10,7 +10,70 @@ const currentDir = fileURLToPath(new URL('.', import.meta.url));
 
 let mainWindow: BrowserWindow | undefined;
 let toolbarWindow: BrowserWindow | undefined;
+let settingsWindow: BrowserWindow | undefined;
 let tray: Tray | null = null;
+
+// 預設設定
+const defaultSettings = {
+  pen1Color: '#ff0000', // 紅色
+  traceColor: '#ffa500', // 橘色
+  rectColor: '#0000ff', // 藍色
+  lineWidth: 5,
+};
+
+let currentSettings = { ...defaultSettings };
+
+function createSettingsWindow() {
+  if (settingsWindow) {
+    settingsWindow.focus();
+    return;
+  }
+
+  if (!mainWindow) {
+    return;
+  }
+
+  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+
+  settingsWindow = new BrowserWindow({
+    width: 400,
+    height: 450,
+    x: Math.floor((screenWidth - 400) / 2),
+    y: Math.floor((screenHeight - 450) / 2),
+    parent: mainWindow,
+    modal: true,
+    title: '設定',
+    frame: false, // 移除標題列和框架
+    resizable: false,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false, // For easier IPC
+      preload: path.resolve(
+        currentDir,
+        path.join(
+          process.env.QUASAR_ELECTRON_PRELOAD_FOLDER,
+          'electron-preload' + process.env.QUASAR_ELECTRON_PRELOAD_EXTENSION,
+        ),
+      ),
+    },
+  });
+
+  if (process.env.DEV) {
+    void settingsWindow.loadURL(process.env.APP_URL + '/settings.html');
+  } else {
+    void settingsWindow.loadFile('settings.html');
+  }
+
+  settingsWindow.once('ready-to-show', () => {
+    settingsWindow?.show();
+    settingsWindow?.webContents.send('settings-data', currentSettings);
+  });
+
+  settingsWindow.on('closed', () => {
+    settingsWindow = undefined;
+  });
+}
 
 async function createWindow() {
   /**
@@ -105,6 +168,13 @@ async function createWindow() {
       },
     },
     {
+      label: '設定',
+      click: () => {
+        createSettingsWindow();
+      },
+    },
+    { type: 'separator' },
+    {
       label: '結束程式',
       type: 'normal',
       click: () => {
@@ -175,6 +245,22 @@ ipcMain.on('clear-canvas', () => {
 ipcMain.on('set-tool', (event, tool) => {
   console.log('set-tool received in main', tool);
   mainWindow?.webContents.send('set-tool', tool);
+});
+
+ipcMain.on('save-settings', (event, newSettings) => {
+  currentSettings = newSettings;
+  // 將新設定傳遞給繪圖視窗
+  mainWindow?.webContents.send('update-settings', currentSettings);
+  console.log('Settings saved:', currentSettings);
+});
+
+ipcMain.on('restore-settings', () => {
+  currentSettings = { ...defaultSettings };
+  // 將預設設定傳遞給繪圖視窗
+  mainWindow?.webContents.send('update-settings', currentSettings);
+  // 同時也將預設設定傳遞給設定視窗，使其更新 UI
+  settingsWindow?.webContents.send('settings-data', currentSettings);
+  console.log('Settings restored to default');
 });
 
 ipcMain.on('toggle-whiteboard', (_event, isWhiteboardMode: boolean) => {

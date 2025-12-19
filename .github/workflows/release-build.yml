@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     permissions:
-      contents: write
+      contents: write # needed for electron-builder
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -31,9 +31,40 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Upload to Release
+      - name: Upload Linux artifact
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-linux
+          path: dist/electron/Packaged/*.AppImage
+
+      - name: Upload Windows artifact
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-windows
+          path: dist/electron/Packaged/*.exe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to create release
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: artifacts
+
+      - name: Upload assets to release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/**/*
+          files: |
+            artifacts/dist-linux/*
+            artifacts/dist-windows/*
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

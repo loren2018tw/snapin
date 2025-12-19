@@ -198,14 +198,14 @@ export default defineConfig((/* ctx */) => {
         appId: 'boats.loren.snipin',
         win: {
           target: [
-            // {
-            //   target: 'nsis', // 生成安裝檔 (EXE)
-            //   arch: ['x64'], // 強制指定 64 位元
-            // },
             {
-              target: 'portable', // 也可以同時生成免安裝綠色版
-              arch: ['x64'],
+              target: 'nsis', // 生成安裝檔 (EXE)
+              arch: ['x64'], // 強制指定 64 位元
             },
+            // {
+            //   target: 'portable', // 也可以同時生成免安裝綠色版
+            //   arch: ['x64'],
+            // },
           ],
         },
         linux: {

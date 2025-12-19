@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, globalShortcut, Tray, Menu, screen } from 'electron';
+import Store from 'electron-store';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
@@ -21,7 +22,9 @@ const defaultSettings = {
   lineWidth: 5,
 };
 
-let currentSettings = { ...defaultSettings };
+const store = new Store();
+
+let currentSettings = store.get('settings', defaultSettings);
 
 function createSettingsWindow() {
   if (settingsWindow) {
@@ -187,6 +190,18 @@ async function createWindow() {
   tray.setToolTip('SnapIn 螢幕標註工具');
   tray.setContextMenu(contextMenu);
 
+  tray.on('click', () => {
+    if (mainWindow?.isVisible()) {
+      mainWindow.hide();
+      toolbarWindow?.hide();
+    } else {
+      mainWindow?.show();
+      mainWindow?.focus();
+      toolbarWindow?.show();
+      toolbarWindow?.focus();
+    }
+  });
+
   // 不開啟開發者工具
   mainWindow.webContents.on('devtools-opened', () => {
     mainWindow?.webContents.closeDevTools();
@@ -251,6 +266,7 @@ ipcMain.on('set-tool', (event, tool) => {
 
 ipcMain.on('save-settings', (event, newSettings) => {
   currentSettings = newSettings;
+  store.set('settings', currentSettings);
   // 將新設定傳遞給繪圖視窗
   mainWindow?.webContents.send('update-settings', currentSettings);
   console.log('Settings saved:', currentSettings);
@@ -258,6 +274,7 @@ ipcMain.on('save-settings', (event, newSettings) => {
 
 ipcMain.on('restore-settings', () => {
   currentSettings = { ...defaultSettings };
+  store.set('settings', currentSettings);
   // 將預設設定傳遞給繪圖視窗
   mainWindow?.webContents.send('update-settings', currentSettings);
   // 同時也將預設設定傳遞給設定視窗，使其更新 UI

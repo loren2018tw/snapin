@@ -196,6 +196,7 @@ export default defineConfig((/* ctx */) => {
       },
       builder: {
         appId: 'boats.loren.snipin',
+        publish: 'never',
         win: {
           target: [
             {

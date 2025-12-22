@@ -3,6 +3,19 @@
 
 import { defineConfig } from '#q-app/wrappers';
 
+// 生成日期時間格式版本號碼 (YYYYMMDDHHmm)
+function generateAppVersion(): string {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${year}${month}${day}${hours}${minutes}`;
+}
+
+const appVersion = generateAppVersion();
+
 export default defineConfig((/* ctx */) => {
   return {
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
@@ -196,6 +209,8 @@ export default defineConfig((/* ctx */) => {
       },
       builder: {
         appId: 'boats.loren.snipin',
+        buildVersion: appVersion, // 在這裡注入版本號碼
+        artifactName: `SnapIn-${appVersion}.\${ext}`, // 動態設定輸出檔案名稱，直接使用 appVersion
         win: {
           target: [
             {

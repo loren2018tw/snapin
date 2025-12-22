@@ -40,7 +40,7 @@ function createSettingsWindow() {
 
   settingsWindow = new BrowserWindow({
     width: 400,
-    height: 450,
+    height: 490,
     x: Math.floor((screenWidth - 400) / 2),
     y: Math.floor((screenHeight - 450) / 2),
     parent: mainWindow,

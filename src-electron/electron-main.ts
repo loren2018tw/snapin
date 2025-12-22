@@ -121,7 +121,7 @@ async function createWindow() {
     parent: mainWindow,
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 50,
-    height: 330,
+    height: 370,
     x: screenWidth - 80,
     y: Math.floor((screenHeight - 200) / 2),
     frame: false, // 移除標題列和框架
@@ -292,6 +292,13 @@ ipcMain.on('toggle-whiteboard', (_event, isWhiteboardMode: boolean) => {
       mainWindow.setOpacity(0.5);
       mainWindow.setBackgroundColor('#00000000');
     }
+  }
+});
+
+ipcMain.on('set-ignore-mouse-events', (_event, ignore: boolean) => {
+  console.log('set-ignore-mouse-events received in main', ignore);
+  if (mainWindow) {
+    mainWindow.setIgnoreMouseEvents(ignore, { forward: true });
   }
 });
 

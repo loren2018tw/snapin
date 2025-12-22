@@ -29,6 +29,15 @@
       title="長方形"
     />
     <q-btn
+      icon="mouse"
+      flat
+      round
+      :color="activeTool === 'Mouse Pointer' ? 'primary' : 'grey'"
+      @click="setTool('Mouse Pointer')"
+      class="tool-btn"
+      title="滑鼠指標"
+    />
+    <q-btn
       icon="cleaning_services"
       flat
       round
@@ -77,8 +86,17 @@ const activeTool = ref('brush1');
 const isWhiteboardMode = ref(false);
 
 function setTool(tool: string) {
+  if (isWhiteboardMode.value && tool === 'Mouse Pointer') {
+    // 在白板模式下，不允許切換到滑鼠指標工具
+    return;
+  }
   activeTool.value = tool;
   window.electronAPI?.send('set-tool', tool);
+  if (tool === 'Mouse Pointer') {
+    window.electronAPI?.send('set-ignore-mouse-events', true);
+  } else {
+    window.electronAPI?.send('set-ignore-mouse-events', false);
+  }
 }
 
 function clearCanvas() {
@@ -89,6 +107,9 @@ function clearCanvas() {
 function toggleWhiteboardMode() {
   isWhiteboardMode.value = !isWhiteboardMode.value;
   window.electronAPI?.toggleWhiteboard(isWhiteboardMode.value);
+  if (isWhiteboardMode.value && activeTool.value === 'Mouse Pointer') {
+    setTool('brush1');
+  }
 }
 
 function closeApp() {

@@ -307,17 +307,6 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
-  app.on('second-instance', () => {
-    // 當第二個實例啟動時，讓第一個實例顯示並聚焦
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.show();
-      mainWindow.focus();
-      toolbarWindow?.show();
-      toolbarWindow?.focus();
-    }
-  });
-
   void app.whenReady().then(createWindow);
 
   app.on('window-all-closed', () => {

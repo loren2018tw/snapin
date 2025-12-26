@@ -302,21 +302,38 @@ ipcMain.on('set-ignore-mouse-events', (_event, ignore: boolean) => {
   }
 });
 
-void app.whenReady().then(createWindow);
+const gotTheLock = app.requestSingleInstanceLock();
 
-app.on('window-all-closed', () => {
-  globalShortcut.unregisterAll();
-  if (platform !== 'darwin') {
-    app.quit();
-  }
-});
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    // 當第二個實例啟動時，讓第一個實例顯示並聚焦
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+      toolbarWindow?.show();
+      toolbarWindow?.focus();
+    }
+  });
 
-app.on('will-quit', () => {
-  globalShortcut.unregisterAll();
-});
+  void app.whenReady().then(createWindow);
 
-app.on('activate', () => {
-  if (mainWindow === undefined) {
-    createWindow().catch(console.error);
-  }
-});
+  app.on('window-all-closed', () => {
+    globalShortcut.unregisterAll();
+    if (platform !== 'darwin') {
+      app.quit();
+    }
+  });
+
+  app.on('will-quit', () => {
+    globalShortcut.unregisterAll();
+  });
+
+  app.on('activate', () => {
+    if (mainWindow === undefined) {
+      createWindow().catch(console.error);
+    }
+  });
+}

@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 declare global {
   interface Window {
@@ -77,6 +77,7 @@ declare global {
       hideWindow: () => Promise<void>;
       toggleWhiteboard: (isWhiteboardMode: boolean) => void;
       send: (channel: string, ...args: unknown[]) => void;
+      on: (channel: string, callback: (...args: unknown[]) => void) => void;
       onClearDrawing: (callback: () => void) => void;
     };
   }
@@ -116,6 +117,15 @@ function closeApp() {
   console.log('hide-windows');
   void window.electronAPI?.hideWindow();
 }
+
+onMounted(() => {
+  window.electronAPI?.on('update-tool', (tool) => {
+    activeTool.value = tool as string;
+  });
+  window.electronAPI?.on('toggle-whiteboard-hotkey', () => {
+    toggleWhiteboardMode();
+  });
+});
 </script>
 
 <style scoped>

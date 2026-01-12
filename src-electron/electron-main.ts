@@ -25,6 +25,7 @@ const defaultSettings = {
 const store = new Store();
 
 let currentSettings = store.get('settings', defaultSettings);
+let isWhiteboard = false; // 白板模式狀態
 
 function createSettingsWindow() {
   if (settingsWindow) {
@@ -284,6 +285,7 @@ ipcMain.on('restore-settings', () => {
 
 ipcMain.on('toggle-whiteboard', (_event, isWhiteboardMode: boolean) => {
   console.log('toggle-whiteboard received in main', isWhiteboardMode);
+  isWhiteboard = isWhiteboardMode;
   if (mainWindow) {
     if (isWhiteboardMode) {
       mainWindow.setOpacity(1);
@@ -299,6 +301,48 @@ ipcMain.on('set-ignore-mouse-events', (_event, ignore: boolean) => {
   console.log('set-ignore-mouse-events received in main', ignore);
   if (mainWindow) {
     mainWindow.setIgnoreMouseEvents(ignore, { forward: true });
+  }
+});
+
+ipcMain.on('hotkey-pressed', (_event, key: string) => {
+  console.log('hotkey-pressed received in main', key);
+  let tool: string | null = null;
+  switch (key) {
+    case 'e':
+      tool = 'brush1';
+      break;
+    case 't':
+      tool = 'Trail Pen';
+      break;
+    case 'r':
+      tool = 'Rectangle';
+      break;
+    case 'm':
+      if (!isWhiteboard) {
+        tool = 'Mouse Pointer';
+        if (mainWindow) {
+          mainWindow.setIgnoreMouseEvents(true, { forward: true });
+        }
+      }
+      break;
+  }
+  if (tool) {
+    mainWindow?.webContents.send('set-tool', tool);
+    toolbarWindow?.webContents.send('update-tool', tool);
+  } else if (key === 'w') {
+    isWhiteboard = !isWhiteboard;
+    if (mainWindow) {
+      if (isWhiteboard) {
+        mainWindow.setOpacity(1);
+        mainWindow.setBackgroundColor('#FFFFFF');
+      } else {
+        mainWindow.setOpacity(0.5);
+        mainWindow.setBackgroundColor('#00000000');
+      }
+    }
+    toolbarWindow?.webContents.send('toggle-whiteboard-hotkey');
+  } else if (key === 'c') {
+    mainWindow?.webContents.send('clear-drawing');
   }
 });
 

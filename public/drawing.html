@@ -180,6 +180,11 @@
       window.electronAPI.on('set-tool', (tool) => {
         console.log('set-tool received in renderer', tool);
         activeTool = tool;
+        if (tool === 'Mouse Pointer') {
+          canvas.style.cursor = 'default';
+        } else {
+          canvas.style.cursor = 'crosshair';
+        }
       });
 
       window.electronAPI.on('update-settings', (newSettings) => {
@@ -227,6 +232,12 @@
       canvas.addEventListener('mouseleave', () => {
         console.log('mouseleave');
         isDrawing = false;
+      });
+
+      // 添加鍵盤事件監聽器用於快速鍵
+      window.addEventListener('keydown', (e) => {
+        console.log('keydown in drawing', e.key);
+        window.electronAPI.send('hotkey-pressed', e.key.toLowerCase());
       });
     </script>
   </body>

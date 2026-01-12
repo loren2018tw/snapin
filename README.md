@@ -1,43 +1,66 @@
-# Snap In (snapin)
+# SnapIn - 螢幕標註工具
 
-Snapin App
+這是一個使用 Quasar v2、Vite 和 Electron 開發的桌面應用程式，讓使用者可以直接在螢幕上進行標註、繪圖或使用白板功能。
 
-## Install the dependencies
+## 軟體操作說明
+
+1.  **啟動程式**:
+    - 啟動應用程式後，會在系統工具列（System Tray）出現一個 SnapIn 圖示。
+
+2.  **顯示/隱藏工具**:
+    - 點擊系統工具列的圖示，可以顯示或隱藏繪圖工具列與畫布。
+    - 您也可以使用全域快捷鍵 `F9` 來快速顯示或隱藏。
+
+3.  **主要功能**:
+    - **工具列**: 啟動後，螢幕右側會出現一個浮動工具列，提供不同的繪圖工具。
+      - **畫筆 (E)**: 自由繪製線條。
+      - **軌跡筆 (T)**: 繪製可自動淡出的線條。
+      - **矩形 (R)**: 繪製矩形。
+      - **滑鼠穿透 (M)**: 讓滑鼠可以操作畫布下方的其他應用程式視窗。
+      - **白板模式 (W)**: 將透明畫布切換為不透明的白色畫板。
+      - **清除 (C)**: 清除畫布上的所有標註。
+      - **關閉**: 隱藏工具列與畫布（等同於按 `F9`）。
+    - **快捷鍵**: 在繪圖模式下，可使用括號內的英文字母快捷鍵快速切換工具。
+
+4.  **設定**:
+    - 在系統工具列的圖示上點擊右鍵，選擇「設定」，可以開啟設定視窗。
+    - 在設定中，您可以自訂不同畫筆的顏色與線條寬度。
+
+5.  **結束程式**:
+    - 在系統工具列的圖示上點擊右鍵，選擇「結束程式」。
+
+## 專案建置說明
+
+此專案基於 Quasar 框架，並使用 Yarn 或 NPM 進行套件管理。
+
+### 1. 安裝依賴
+
+首先，複製專案並在專案根目錄下執行以下指令來安裝所需的依賴套件。
 
 ```bash
-yarn
-# or
+# 使用 Yarn
+yarn install
+
+# 或使用 NPM
 npm install
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+### 2. 開發模式
+
+若要在開發模式下執行應用程式，它將具備熱重載 (Hot-Reload) 功能，方便即時預覽修改。
 
 ```bash
-quasar dev
+# 此指令會啟動 Electron 應用程式
+quasar dev -m electron
 ```
 
-### Lint the files
+### 3. 打包應用程式
+
+當您準備好要發布應用程式時，可以執行以下指令來為 Windows 和 Linux 平台建置安裝檔。
 
 ```bash
-yarn lint
-# or
-npm run lint
+# 此指令會使用 electron-builder 進行打包
+quasar build -m electron
 ```
 
-### Format the files
-
-```bash
-yarn format
-# or
-npm run format
-```
-
-### Build the app for production
-
-```bash
-quasar build
-```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+建置完成後，您可以在 `dist/electron/` 目錄下找到對應平台的安裝檔（例如 Windows 的 `.exe` 或 Linux 的 `.AppImage`）。

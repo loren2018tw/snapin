@@ -29,6 +29,15 @@
       title="長方形"
     />
     <q-btn
+      icon="radio_button_unchecked"
+      flat
+      round
+      :color="activeTool === 'Circle' ? 'primary' : 'grey'"
+      @click="setTool('Circle')"
+      class="tool-btn"
+      title="圓形"
+    />
+    <q-btn
       icon="mouse"
       flat
       round

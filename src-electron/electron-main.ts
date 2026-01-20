@@ -122,7 +122,7 @@ async function createWindow() {
     parent: mainWindow,
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 50,
-    height: 370,
+    height: 420,
     x: screenWidth - 80,
     y: Math.floor((screenHeight - 200) / 2),
     frame: false, // 移除標題列和框架

@@ -121,9 +121,9 @@ async function createWindow() {
   toolbarWindow = new BrowserWindow({
     parent: mainWindow,
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
-    width: 50,
+    width: 150,
     height: 420,
-    x: screenWidth - 80,
+    x: screenWidth - 160,
     y: Math.floor((screenHeight - 200) / 2),
     frame: false, // 移除標題列和框架
     resizable: false, // 不允許調整大小
@@ -132,6 +132,7 @@ async function createWindow() {
     skipTaskbar: true, // 不顯示在任務列
     type: 'toolbar', // 隱藏從視窗清單
     useContentSize: true,
+    transparent: true,
     webPreferences: {
       contextIsolation: true,
       // More info: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/electron-preload-script
@@ -308,7 +309,7 @@ ipcMain.on('hotkey-pressed', (_event, key: string) => {
   console.log('hotkey-pressed received in main', key);
   let tool: string | null = null;
   switch (key) {
-    case 'e':
+    case 'b':
       tool = 'brush1';
       break;
     case 't':
@@ -316,6 +317,9 @@ ipcMain.on('hotkey-pressed', (_event, key: string) => {
       break;
     case 'r':
       tool = 'Rectangle';
+      break;
+    case 'e':
+      tool = 'Ellipse';
       break;
     case 'm':
       if (!isWhiteboard) {

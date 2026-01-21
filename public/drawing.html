@@ -44,7 +44,7 @@
       let activeTool = 'brush1'; // 預設工具
       const shapes = []; // 用於儲存畫筆的形狀資料
       let tempRectangleShape = null; // 用於儲存目前繪製長方形的暫存資料
-      let tempCircleShape = null; // 用於儲存目前繪製圓形的暫存資料
+      let tempEllipseShape = null; // 用於儲存目前繪製橢圓形的暫存資料
       let startX = 0;
       let startY = 0;
 
@@ -56,11 +56,11 @@
         ctx.stroke();
       }
 
-      function drawCircle(x, y, radius, color, width) {
+      function drawEllipse(x, y, radiusX, radiusY, color, width) {
         ctx.strokeStyle = color;
         ctx.lineWidth = width;
         ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.ellipse(x, y, radiusX, radiusY, 0, 0, 2 * Math.PI);
         ctx.stroke();
       }
 
@@ -113,16 +113,21 @@
             color: settings.rectColor,
             width: settings.lineWidth,
           };
-        } else if (activeTool === 'Circle') {
+        } else if (activeTool === 'Ellipse') {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.stroke();
 
-          const radius = Math.sqrt((e.clientX - startX) ** 2 + (e.clientY - startY) ** 2);
-          tempCircleShape = {
-            type: 'Circle',
-            x: startX,
-            y: startY,
-            radius: radius,
+          const radiusX = Math.abs(e.clientX - startX) / 2;
+          const radiusY = Math.abs(e.clientY - startY) / 2;
+          const centerX = startX + (e.clientX >= startX ? radiusX : -radiusX);
+          const centerY = startY + (e.clientY >= startY ? radiusY : -radiusY);
+
+          tempEllipseShape = {
+            type: 'Ellipse',
+            x: centerX,
+            y: centerY,
+            radiusX: radiusX,
+            radiusY: radiusY,
             color: settings.rectColor,
             width: settings.lineWidth,
           };
@@ -159,8 +164,8 @@
             }
           } else if (shape.type === 'Rectangle') {
             drawRectangle(shape.x1, shape.y1, shape.x2, shape.y2, shape.color, shape.width);
-          } else if (shape.type === 'Circle') {
-            drawCircle(shape.x, shape.y, shape.radius, shape.color, shape.width);
+          } else if (shape.type === 'Ellipse') {
+            drawEllipse(shape.x, shape.y, shape.radiusX, shape.radiusY, shape.color, shape.width);
           }
         }
 
@@ -176,14 +181,15 @@
           );
         }
 
-        // 繪製目前正在繪製的圓形
-        if (tempCircleShape) {
-          drawCircle(
-            tempCircleShape.x,
-            tempCircleShape.y,
-            tempCircleShape.radius,
-            tempCircleShape.color,
-            tempCircleShape.width,
+        // 繪製目前正在繪製的橢圓形
+        if (tempEllipseShape) {
+          drawEllipse(
+            tempEllipseShape.x,
+            tempEllipseShape.y,
+            tempEllipseShape.radiusX,
+            tempEllipseShape.radiusY,
+            tempEllipseShape.color,
+            tempEllipseShape.width,
           );
         }
       }
@@ -245,7 +251,7 @@
         console.log('mouseup');
         isDrawing = false;
         tempRectangleShape = null; // 清除暫存的長方形資料
-        tempCircleShape = null; // 清除暫存的圓形資料
+        tempEllipseShape = null; // 清除暫存的橢圓形資料
         if (activeTool === 'Rectangle') {
           shapes.push({
             type: 'Rectangle',
@@ -257,12 +263,18 @@
             width: settings.lineWidth,
           });
           redrawCanvas();
-        } else if (activeTool === 'Circle') {
+        } else if (activeTool === 'Ellipse') {
+          const radiusX = Math.abs(e.clientX - startX) / 2;
+          const radiusY = Math.abs(e.clientY - startY) / 2;
+          const centerX = startX + (e.clientX >= startX ? radiusX : -radiusX);
+          const centerY = startY + (e.clientY >= startY ? radiusY : -radiusY);
+
           shapes.push({
-            type: 'Circle',
-            x: startX,
-            y: startY,
-            radius: Math.sqrt((e.clientX - startX) ** 2 + (e.clientY - startY) ** 2),
+            type: 'Ellipse',
+            x: centerX,
+            y: centerY,
+            radiusX: radiusX,
+            radiusY: radiusY,
             color: settings.rectColor,
             width: settings.lineWidth,
           });

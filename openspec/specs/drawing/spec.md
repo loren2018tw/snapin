@@ -1,23 +1,23 @@
-### Requirement: Circular Annotation Tool
+### Requirement: Ellipse Annotation Tool
 
-The drawing application SHALL provide a circular annotation tool that allows users to draw circles by dragging from the center point to define the radius.
+The drawing application SHALL provide an ellipse annotation tool that allows users to draw ellipses by dragging to define the bounding box.
 
-#### Scenario: Draw a circle
+#### Scenario: Draw an ellipse
 
-- **WHEN** the user selects the 'Circle' tool and drags on the canvas from center to edge
-- **THEN** a circle is drawn with the start point as center and distance to current point as radius
+- **WHEN** the user selects the 'Ellipse' tool and drags on the canvas
+- **THEN** an ellipse is drawn within the bounding box defined by the start and end points
 
-#### Scenario: Circle persistence
+#### Scenario: Ellipse persistence
 
-- **WHEN** a circle is drawn
+- **WHEN** an ellipse is drawn
 - **THEN** it remains on the canvas until cleared
 
-#### Scenario: Circle styling
+#### Scenario: Ellipse styling
 
-- **WHEN** drawing a circle
+- **WHEN** drawing an ellipse
 - **THEN** it uses the configured rectangle color and line width for the stroke
 
-#### Scenario: Circle tool selection
+#### Scenario: Ellipse tool selection
 
-- **WHEN** user clicks the Circle button in the toolbar
-- **THEN** the Circle tool is activated for drawing
+- **WHEN** user clicks the Ellipse button in the toolbar
+- **THEN** the Ellipse tool is activated for drawing

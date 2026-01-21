@@ -1,18 +1,4 @@
-# toolbar Specification
-
-## Purpose
-
-To define the behavior and requirements of the application toolbar, including tool selection and window management controls.
-## Requirements
-### Requirement: Window Drag Button
-
-The system SHALL provide a button in the top toolbar that allows the user to drag and reposition the main application window.
-
-#### Scenario: Dragging the move button
-
-- **WHEN** the user clicks and holds the drag button in the toolbar
-- **AND** changes the cursor position
-- **THEN** the main window moves synchronously with the cursor
+## ADDED Requirements
 
 ### Requirement: 形狀工具 FAB 群組
 
@@ -43,14 +29,3 @@ The system SHALL provide a button in the top toolbar that allows the user to dra
 
 - **WHEN** 目前啟用的工具不是形狀工具（例如：畫筆）
 - **THEN** 形狀工具 FAB 顯示通用類別圖示（`category`）
-
-### Requirement: 工具列視窗快速鍵同步
-
-當工具列視窗（Toolbar Window）處於作用中狀態時，系統必須 (SHALL) 捕捉並處理預定的快速鍵，使其行為與繪圖視窗一致。
-
-#### Scenario: 工具列視窗捕捉快速鍵
-
-- **WHEN** 工具列視窗處於焦點狀態
-- **AND** 使用者按下支援的快速鍵（如 'r' 代表矩形）
-- **THEN** 系統應切換至對應的工具並更新所有視窗的狀態
-

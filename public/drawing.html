@@ -238,6 +238,7 @@
 
       canvas.addEventListener('mousedown', (e) => {
         console.log('mousedown', e.clientX, e.clientY);
+        window.electronAPI.send('drawing-mousedown');
         isDrawing = true;
         lastX = e.clientX;
         lastY = e.clientY;

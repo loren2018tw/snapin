@@ -21,6 +21,7 @@
         title="軌跡筆"
       />
       <q-fab
+        v-model="isFabOpen"
         :icon="shapeToolIcon"
         direction="left"
         padding="xs"
@@ -99,6 +100,7 @@ declare global {
 
 const activeTool = ref('brush1');
 const isWhiteboardMode = ref(false);
+const isFabOpen = ref(false);
 
 const shapeToolIcon = computed(() => {
   if (activeTool.value === 'Rectangle') return 'rectangle';
@@ -116,6 +118,7 @@ function setTool(tool: string) {
     return;
   }
   activeTool.value = tool;
+  isFabOpen.value = false;
   window.electronAPI?.send('set-tool', tool);
   if (tool === 'Mouse Pointer') {
     window.electronAPI?.send('set-ignore-mouse-events', true);
@@ -150,9 +153,13 @@ onMounted(() => {
   window.addEventListener('keydown', handleKeydown);
   window.electronAPI?.on('update-tool', (tool) => {
     activeTool.value = tool as string;
+    isFabOpen.value = false;
   });
   window.electronAPI?.on('toggle-whiteboard-hotkey', () => {
     toggleWhiteboardMode();
+  });
+  window.electronAPI?.on('close-fab', () => {
+    isFabOpen.value = false;
   });
 });
 

@@ -266,6 +266,10 @@ ipcMain.on('set-tool', (event, tool) => {
   mainWindow?.webContents.send('set-tool', tool);
 });
 
+ipcMain.on('drawing-mousedown', () => {
+  toolbarWindow?.webContents.send('close-fab');
+});
+
 ipcMain.on('save-settings', (event, newSettings) => {
   currentSettings = newSettings;
   store.set('settings', currentSettings);

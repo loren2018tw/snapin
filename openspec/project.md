@@ -2,7 +2,9 @@
 
 ## Purpose
 
-SnapIn 是一個基於 Quasar 和 Electron 的桌面應用程式，提供繪圖和設定功能。目標是建立一個輕量級的桌面工具，用於快速繪圖和個人化設定。
+SnapIn 是一個基於 Quasar 和 Electron 的桌面應用程式，提供繪圖和設定功能。目標是建立一個輕量級的桌面工具，用於教學時於螢幕標註畫記。
+
+**Author**: Loren Li <loren.tw@gmail.com>
 
 ## Tech Stack
 

@@ -1,6 +1,6 @@
 <template>
   <div class="toolbar">
-    <div class="drag-handle"></div>
+    <q-btn icon="open_with" flat round class="drag-btn" title="移動視窗" />
     <q-btn
       icon="brush"
       flat
@@ -145,14 +145,15 @@ onMounted(() => {
   background-color: #f5f5f5;
   padding: 7px;
   gap: 5px;
-  -webkit-app-region: drag; /* 允許拖拽整個區域 */
-  overflow: hidden; /* 隱藏任何溢出內容 */
+  /* webkit-app-region: drag; 允許拖拽整個區域 */
+  overflow: hidden;
 }
 
-.drag-handle {
-  height: 30px;
-  background-color: #e68e30;
-  -webkit-app-region: drag;
+.drag-btn {
+  width: 32px;
+  height: 32px;
+  -webkit-app-region: drag; /* 允許此按鈕拖拽視窗 */
+  cursor: move;
 }
 
 .tool-btn {
